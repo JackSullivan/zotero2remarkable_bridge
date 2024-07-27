@@ -19,6 +19,8 @@ def push(zot, webdav, folders):
     zot.delete_tags("to_sync")
 
 
+
+
 def pull(zot, webdav, read_folder):
     files_list = rmapi.get_files(read_folder)
     if files_list:

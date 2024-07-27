@@ -25,15 +25,20 @@ def sync_to_rm(item, zot, folders):
             print(f"Processing {attachment_name}...")
                 
             # Get actual file and repack it in reMarkable's file format
-            file_name = zot.dump(attachment_id, path=temp_path)
+            file_name = f"{temp_path}/{attachment_name}"
+            with open(file_name, 'wb') as f:
+                f.write(zot.file(attachment_id))
+            # file_name = zot.dump(attachment_id, path=temp_path)
             if file_name:
                 upload = rmapi.upload_file(file_name, f"/Zotero/{folders['unread']}")
-            if upload:
-                zot.add_tags(item, "synced")
-                os.remove(file_name)
-                print(f"Uploaded {attachment_name} to reMarkable.")
+                if upload:
+                    zot.add_tags(item, "synced")
+                    os.remove(file_name)
+                    print(f"Uploaded {attachment_name} to reMarkable.")
+                else:
+                    print(f"Failed to upload {attachment_name} to reMarkable.")
             else:
-                print(f"Failed to upload {attachment_name} to reMarkable.")
+                print(f"No file name found for {attachment_id}, check {temp_path}")
         else:
             print("Found attachment, but it's not a PDF, skipping...")
         
@@ -108,6 +113,7 @@ def download_from_rm(entity, folder, content_id):
 def zotero_upload(pdf_name, zot):
     for item in zot.items(tag="synced"):
         item_id = item["key"]
+        zot.add_tags(item, 'Read')
         for attachment in zot.children(item_id):
             if "filename" in attachment["data"] and attachment["data"]["filename"] == pdf_name:
                 #zot.delete_item(attachment)

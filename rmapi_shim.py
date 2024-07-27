@@ -1,8 +1,10 @@
 import subprocess
 import json
 
+RMAPI= "/Users/johsulli/.nix-profile/bin/rmapi"
+
 def check_rmapi():
-    check = subprocess.run(["rmapi", "ls"])
+    check = subprocess.run([RMAPI, "ls"])
     if check.returncode == 0:
         return True
     else:
@@ -11,7 +13,7 @@ def check_rmapi():
 
 def get_files(folder):
     # Get all files from a specific folder. Output is sanetised and subfolders are excluded
-    files = subprocess.run(["rmapi", "ls", folder], capture_output=True, text=True)
+    files = subprocess.run([RMAPI, "ls", folder], capture_output=True, text=True)
     if files.returncode == 0:
         files_list = files.stdout.split("\n")
         files_list_new = []
@@ -25,7 +27,7 @@ def get_files(folder):
 
 def download_file(file_path, working_dir):
     # Downloads a file (consisting of a zip file) to a specified directory
-    downloader = subprocess.run(["rmapi", "get", file_path], cwd=working_dir)
+    downloader = subprocess.run([RMAPI, "get", file_path], cwd=working_dir)
     if downloader.returncode == 0:
         return True
     else:
@@ -34,7 +36,7 @@ def download_file(file_path, working_dir):
 
 def get_metadata(file_path):
     # Get the file's metadata from reMarkable cloud and return it in metadata format
-    metadata = subprocess.run(["rmapi", "stat", file_path], capture_output=True, text=True)
+    metadata = subprocess.run([RMAPI, "stat", file_path], capture_output=True, text=True)
     if metadata.returncode == 0:
         metadata_txt = metadata.stdout
         json_start = metadata_txt.find("{")
@@ -47,7 +49,8 @@ def get_metadata(file_path):
 
 def upload_file(file_path, target_folder):
     # Upload a file to its destination folder
-    uploader = subprocess.run(["rmapi", "put", file_path, target_folder])
+    print(f"Attempting to upload {file_path} to {target_folder} with rmapi")
+    uploader = subprocess.run([RMAPI, "put", file_path, target_folder])
     if uploader.returncode == 0:
         return True
     else:
